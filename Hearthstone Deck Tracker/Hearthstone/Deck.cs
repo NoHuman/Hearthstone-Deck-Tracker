@@ -10,14 +10,19 @@ namespace Hearthstone_Deck_Tracker.Hearthstone
 {
 	public class Deck : ICloneable
 	{
-		[XmlArray(ElementName = "Cards")] [XmlArrayItem(ElementName = "Card")] public ObservableCollection<Card> Cards;
+		[XmlArray(ElementName = "Cards")]
+		[XmlArrayItem(ElementName = "Card")]
+		public ObservableCollection<Card> Cards;
 		public string Class;
-		[XmlIgnore] public bool IsSelectedInGui;
+		[XmlIgnore]
+		public bool IsSelectedInGui;
 		public DateTime LastEdited;
 		public string Name;
 		public string Note;
 
-		[XmlArray(ElementName = "Tags")] [XmlArrayItem(ElementName = "Tag")] public List<string> Tags;
+		[XmlArray(ElementName = "Tags")]
+		[XmlArrayItem(ElementName = "Tag")]
+		public List<string> Tags;
 		public string Url;
 
 		public Deck()
@@ -29,14 +34,14 @@ namespace Hearthstone_Deck_Tracker.Hearthstone
 		}
 
 		public Deck(string name, string className, IEnumerable<Card> cards, IEnumerable<string> tags, string note, string url,
-		            DateTime lastEdited)
+					DateTime lastEdited)
 		{
 			Name = name;
 			Class = className;
 			Cards = new ObservableCollection<Card>();
 			foreach (var card in cards)
 			{
-				Cards.Add((Card) card.Clone());
+				Cards.Add((Card)card.Clone());
 			}
 			Tags = new List<string>(tags);
 			Note = note;
@@ -47,7 +52,10 @@ namespace Hearthstone_Deck_Tracker.Hearthstone
 		[XmlIgnore]
 		public string GetClass
 		{
-			get { return string.IsNullOrEmpty(Class) ? "(No Class Selected)" : "(" + Class + ")"; }
+			get
+			{
+				return string.IsNullOrEmpty(Class) ? "(No Class Selected)" : string.Format("({0})", Class);
+			}
 		}
 
 		[XmlIgnore]
@@ -64,19 +72,28 @@ namespace Hearthstone_Deck_Tracker.Hearthstone
 		[XmlIgnore]
 		public FontWeight GetFontWeight
 		{
-			get { return IsSelectedInGui ? FontWeights.Black : FontWeights.Bold; }
+			get
+			{
+				return IsSelectedInGui ? FontWeights.Black : FontWeights.Bold;
+			}
 		}
 
 		[XmlIgnore]
 		public string TagList
 		{
-			get { return Tags.Count > 0 ? "[" + Tags.Aggregate((t, n) => t + ", " + n) + "]" : ""; }
+			get
+			{
+				return Tags.Count > 0 ? "[" + Tags.Aggregate((t, n) => t + ", " + n) + "]" : "";
+			}
 		}
 
 		[XmlIgnore]
 		public SolidColorBrush ClassColorBrush
 		{
-			get { return new SolidColorBrush(ClassColor); }
+			get
+			{
+				return new SolidColorBrush(ClassColor);
+			}
 		}
 
 		[XmlIgnore]
@@ -87,27 +104,27 @@ namespace Hearthstone_Deck_Tracker.Hearthstone
 				switch (Class)
 				{
 					case "Druid":
-						return (Color) ColorConverter.ConvertFromString("#FF7D0A");
+						return (Color)ColorConverter.ConvertFromString("#FF7D0A");
 					case "Death Knight":
-						return (Color) ColorConverter.ConvertFromString("#C41F3B");
+						return (Color)ColorConverter.ConvertFromString("#C41F3B");
 					case "Hunter":
-						return (Color) ColorConverter.ConvertFromString("#ABD473");
+						return (Color)ColorConverter.ConvertFromString("#ABD473");
 					case "Mage":
-						return (Color) ColorConverter.ConvertFromString("#69CCF0");
+						return (Color)ColorConverter.ConvertFromString("#69CCF0");
 					case "Monk":
-						return (Color) ColorConverter.ConvertFromString("#00FF96");
+						return (Color)ColorConverter.ConvertFromString("#00FF96");
 					case "Paladin":
-						return (Color) ColorConverter.ConvertFromString("#F58CBA");
+						return (Color)ColorConverter.ConvertFromString("#F58CBA");
 					case "Priest":
-						return (Color) ColorConverter.ConvertFromString("#FFFFFF");
+						return (Color)ColorConverter.ConvertFromString("#FFFFFF");
 					case "Rogue":
-						return (Color) ColorConverter.ConvertFromString("#FFF569");
+						return (Color)ColorConverter.ConvertFromString("#FFF569");
 					case "Shaman":
-						return (Color) ColorConverter.ConvertFromString("#0070DE");
+						return (Color)ColorConverter.ConvertFromString("#0070DE");
 					case "Warlock":
-						return (Color) ColorConverter.ConvertFromString("#9482C9");
+						return (Color)ColorConverter.ConvertFromString("#9482C9");
 					case "Warrior":
-						return (Color) ColorConverter.ConvertFromString("#C79C6E");
+						return (Color)ColorConverter.ConvertFromString("#C79C6E");
 					default:
 						return Colors.Gray;
 				}
@@ -127,7 +144,8 @@ namespace Hearthstone_Deck_Tracker.Hearthstone
 		public override bool Equals(object obj)
 		{
 			var deck = obj as Deck;
-			if (deck == null) return false;
+			if (deck == null)
+				return false;
 			return Name == deck.Name;
 		}
 

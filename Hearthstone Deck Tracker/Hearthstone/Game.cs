@@ -1,12 +1,11 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 namespace Hearthstone_Deck_Tracker.Hearthstone
 {
@@ -60,8 +59,16 @@ namespace Hearthstone_Deck_Tracker.Hearthstone
 
 		public static List<Card> DrawnLastGame;
 
-		public static int[] OpponentHandAge { get; private set; }
-		public static CardMark[] OpponentHandMarks { get; private set; }
+		public static int[] OpponentHandAge
+		{
+			get;
+			private set;
+		}
+		public static CardMark[] OpponentHandMarks
+		{
+			get;
+			private set;
+		}
 
 		#endregion
 
@@ -276,7 +283,7 @@ namespace Hearthstone_Deck_Tracker.Hearthstone
 
 			}
 		}
-		
+
 		private static bool CanRemoveCard(Card card)
 		{
 			if (card.IsStolen && card.InHandCount < 1)
@@ -342,16 +349,13 @@ namespace Hearthstone_Deck_Tracker.Hearthstone
 				deckCard.Count--;
 				LogDeckChange(false, deckCard, true);
 				if (CanRemoveCard(deckCard))
-						PlayerDeck.Remove(deckCard);
+					PlayerDeck.Remove(deckCard);
 
 				return true;
 			}
 		}
 
 		#endregion
-
-		#region Opponent
-
 		public static void OpponentDraw(int turn)
 		{
 			OpponentHandCount++;
@@ -508,11 +512,7 @@ namespace Hearthstone_Deck_Tracker.Hearthstone
 			LogOpponentHand();
 		}
 
-		#endregion
-
-		#region Database
-
-		private static void LoadCardDb(string languageTag)
+		public static void LoadCardDb(string languageTag)
 		{
 			try
 			{
@@ -525,7 +525,8 @@ namespace Hearthstone_Deck_Tracker.Hearthstone
 						var localized = JObject.Parse(File.ReadAllText(file));
 						foreach (var cardType in localized)
 						{
-							if (!ValidCardSets.Any(cs => cs.Equals(cardType.Key))) continue;
+							if (!ValidCardSets.Any(cs => cs.Equals(cardType.Key)))
+								continue;
 							foreach (var card in cardType.Value)
 							{
 								var tmp = JsonConvert.DeserializeObject<Card>(card.ToString());
@@ -544,8 +545,8 @@ namespace Hearthstone_Deck_Tracker.Hearthstone
 					var obj = JObject.Parse(File.ReadAllText(fileEng));
 					foreach (var cardType in obj)
 					{
-						if (!ValidCardSets.Any(cs => cs.Equals(cardType.Key))) continue;
-						;
+						if (!ValidCardSets.Any(cs => cs.Equals(cardType.Key)))
+							continue;
 						foreach (var card in cardType.Value)
 						{
 							var tmp = JsonConvert.DeserializeObject<Card>(card.ToString());
@@ -571,8 +572,10 @@ namespace Hearthstone_Deck_Tracker.Hearthstone
 
 		public static Card GetCardFromId(string cardId)
 		{
-			if (cardId == null) return null;
-			if (cardId == "") return new Card();
+			if (cardId == null)
+				return null;
+			if (cardId == "")
+				return new Card();
 			if (_cardDb.ContainsKey(cardId))
 			{
 				return (Card)_cardDb[cardId].Clone();
@@ -604,7 +607,5 @@ namespace Hearthstone_Deck_Tracker.Hearthstone
 					where !CardIds.InvalidCardIds.Any(id => card.Id.Contains(id))
 					select card).ToList();
 		}
-
-		#endregion
 	}
 }

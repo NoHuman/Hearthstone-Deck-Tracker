@@ -14,14 +14,34 @@ namespace Hearthstone_Deck_Tracker
 			CurrentTurn = turn;
 		}
 
-		public int Seconds { get; private set; }
-		public int PlayerSeconds { get; private set; }
-		public int OpponentSeconds { get; private set; }
-		public bool Running { get; private set; }
-		public Turn CurrentTurn { get; private set; }
+		public int Seconds
+		{
+			get;
+			private set;
+		}
+		public int PlayerSeconds
+		{
+			get;
+			private set;
+		}
+		public int OpponentSeconds
+		{
+			get;
+			private set;
+		}
+		public bool Running
+		{
+			get;
+			private set;
+		}
+		public Turn CurrentTurn
+		{
+			get;
+			private set;
+		}
 	}
 
-	internal class TurnTimer
+	public class TurnTimer
 	{
 		public Turn CurrentTurn;
 		private bool _opponentMulliganed;
@@ -33,12 +53,28 @@ namespace Hearthstone_Deck_Tracker
 		{
 		}
 
-		public int Seconds { get; private set; }
-		public int PlayerSeconds { get; private set; }
-		public int OpponentSeconds { get; private set; }
+		public int Seconds
+		{
+			get;
+			private set;
+		}
+		public int PlayerSeconds
+		{
+			get;
+			private set;
+		}
+		public int OpponentSeconds
+		{
+			get;
+			private set;
+		}
 
 
-		public static TurnTimer Instance { get; private set; }
+		public static TurnTimer Instance
+		{
+			get;
+			private set;
+		}
 
 		/// <summary>
 		/// 
@@ -117,7 +153,6 @@ namespace Hearthstone_Deck_Tracker
 				_opponentMulliganed = true;
 			}
 		}
-
 
 		private void TimerTick(TurnTimer sender, TimerEventArgs timerEventArgs)
 		{

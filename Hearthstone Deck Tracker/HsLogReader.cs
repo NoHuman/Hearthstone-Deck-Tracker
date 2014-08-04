@@ -70,7 +70,11 @@ namespace Hearthstone_Deck_Tracker
 			_fullOutputPath = @hsDirPath + @"\Hearthstone_Data\output_log.txt";
 		}
 
-		public static HsLogReader Instance { get; private set; }
+		public static HsLogReader Instance
+		{
+			get;
+			private set;
+		}
 
 		public static void Create()
 		{
@@ -266,7 +270,7 @@ namespace Hearthstone_Deck_Tracker
 
 								break;
 							case "FRIENDLY PLAY":
-								if(to == "FRIENDLY HAND")
+								if (to == "FRIENDLY HAND")
 									GameEventHandler.HandlePlayerBackToHand(id);
 								break;
 							case "OPPOSING HAND":
