@@ -4,7 +4,9 @@ using System.Linq;
 namespace Hearthstone_Deck_Tracker
 {
 	using Hearthstone_Deck_Tracker.Hearthstone;
+	using System.Collections.ObjectModel;
 	using System.Windows.Forms;
+
 	public interface IOverlayWindow
 	{
 		void Refresh();
@@ -21,26 +23,42 @@ namespace Hearthstone_Deck_Tracker
 		void Stop();
 	}
 
+	public interface IMainWindow
+	{
+		bool NeedToIncorrectDeckMessage { get; set; }
+		bool IsShowingIncorrectDeckMessage { get; set; }
+		ReadOnlyCollection<string> EventKeys { get; set; }
+		void Refresh();
+		void SelectDeck(Deck deck);
+		DeckInfo GetLastDeck(string playingAs);
+		void UpdateDeckList(Deck deck);
+		void UseDeck(Deck deck);
+		void SavePlayedCards();
+		Deck GetSelectedDeck();
+	}
+
 	public class GameEventHandler2
 	{
 		private IEnumerable<Deck> deckRepository;
 		private ITurnTimer turnTimer;
 		private IOverlayWindow overlayWindow;
+		private IMainWindow mainWindow;
 
-		public GameEventHandler2(IEnumerable<Deck> deckRepository, ITurnTimer turnTimer, IOverlayWindow overlayWindow)
+		public GameEventHandler2(IEnumerable<Deck> deckRepository, ITurnTimer turnTimer, IOverlayWindow overlayWindow, IMainWindow mainWindow)
 		{
 			this.deckRepository = deckRepository;
 			this.turnTimer = turnTimer;
 			this.overlayWindow = overlayWindow;
+			this.mainWindow = mainWindow;
 		}
 
-		public static void HandlePlayerGet(string cardId)
+		public void HandlePlayerGet(string cardId)
 		{
 			LogEvent("PlayerGet", cardId);
 			Game.PlayerGet(cardId, false);
 		}
 
-		public static void HandlePlayerBackToHand(string cardId)
+		public void HandlePlayerBackToHand(string cardId)
 		{
 			LogEvent("PlayerBackToHand", cardId);
 			Game.PlayerGet(cardId, true);
@@ -51,10 +69,10 @@ namespace Hearthstone_Deck_Tracker
 			LogEvent("PlayerDraw", cardId);
 			var correctDeck = Game.PlayerDraw(cardId);
 
-			if (!(await correctDeck) && Config.Instance.AutoDeckDetection && !Helper.MainWindow.NeedToIncorrectDeckMessage &&
-				!Helper.MainWindow.IsShowingIncorrectDeckMessage && Game.IsUsingPremade)
+			if (!(await correctDeck) && Config.Instance.AutoDeckDetection && !mainWindow.NeedToIncorrectDeckMessage &&
+				!mainWindow.IsShowingIncorrectDeckMessage && Game.IsUsingPremade)
 			{
-				Helper.MainWindow.NeedToIncorrectDeckMessage = true;
+				mainWindow.NeedToIncorrectDeckMessage = true;
 				Logger.WriteLine("Found incorrect deck");
 			}
 		}
@@ -67,7 +85,7 @@ namespace Hearthstone_Deck_Tracker
 
 			//without this update call the overlay deck does not update properly after having Card implement INotifyPropertyChanged
 			overlayWindow.Refresh();
-			Helper.MainWindow.PlayerWindow.ListViewPlayer.Items.Refresh();
+			mainWindow.Refresh();
 		}
 
 		public void HandlePlayerHandDiscard(string cardId)
@@ -75,7 +93,7 @@ namespace Hearthstone_Deck_Tracker
 			LogEvent("PlayerHandDiscard", cardId);
 			Game.PlayerHandDiscard(cardId);
 			overlayWindow.Refresh();
-			Helper.MainWindow.PlayerWindow.ListViewPlayer.Items.Refresh();
+			mainWindow.Refresh();
 		}
 
 		public void HandlePlayerPlay(string cardId)
@@ -83,28 +101,28 @@ namespace Hearthstone_Deck_Tracker
 			LogEvent("PlayerPlay", cardId);
 			Game.PlayerPlayed(cardId);
 			overlayWindow.Refresh();
-			Helper.MainWindow.PlayerWindow.ListViewPlayer.Items.Refresh();
+			mainWindow.Refresh();
 		}
 
-		public static void HandlePlayerDeckDiscard(string cardId)
+		public void HandlePlayerDeckDiscard(string cardId)
 		{
 			LogEvent("PlayerDeckDiscard", cardId);
 			var correctDeck = Game.PlayerDeckDiscard(cardId);
 
 			//don't think this will ever detect an incorrect deck but who knows...
-			if (!correctDeck && Config.Instance.AutoDeckDetection && !Helper.MainWindow.NeedToIncorrectDeckMessage &&
-				!Helper.MainWindow.IsShowingIncorrectDeckMessage && Game.IsUsingPremade)
+			if (!correctDeck && Config.Instance.AutoDeckDetection && !mainWindow.NeedToIncorrectDeckMessage &&
+				!mainWindow.IsShowingIncorrectDeckMessage && Game.IsUsingPremade)
 			{
-				Helper.MainWindow.NeedToIncorrectDeckMessage = true;
+				mainWindow.NeedToIncorrectDeckMessage = true;
 				Logger.WriteLine("Found incorrect deck", "HandlePlayerDiscard");
 			}
 		}
 		#region Opponent
 
-		public static void HandleOpponentPlay(string id, int from, int turn)
+		public void HandleOpponentPlay(string id, int position, int turn)
 		{
-			LogEvent("OpponentPlay", id, turn, from);
-			Game.OpponentPlay(id, from, turn);
+			LogEvent("OpponentPlay", id, turn, position);
+			Game.OpponentPlay(id, position, turn);
 		}
 
 		public void HandleOpponentDraw(int turn)
@@ -120,7 +138,7 @@ namespace Hearthstone_Deck_Tracker
 			turnTimer.MulliganDone(Turn.Opponent);
 		}
 
-		public static void HandleOpponentGet(int turn)
+		public void HandleOpponentGet(int turn)
 		{
 			LogEvent("OpponentGet", turn: turn);
 			Game.OpponentGet(turn);
@@ -133,7 +151,7 @@ namespace Hearthstone_Deck_Tracker
 			overlayWindow.ShowSecrets(Game.PlayingAgainst);
 		}
 
-		public static void HandleOpponentPlayToHand(string cardId, int turn)
+		public void HandleOpponentPlayToHand(string cardId, int turn)
 		{
 			LogEvent("OpponentBackToHand", cardId, turn);
 			Game.OpponentBackToHand(cardId, turn);
@@ -156,15 +174,15 @@ namespace Hearthstone_Deck_Tracker
 			//there seems to be an issue with the overlay not updating here.
 			//possibly a problem with order of logs?
 			overlayWindow.Refresh();
-			Helper.MainWindow.OpponentWindow.ListViewOpponent.Items.Refresh();
+			mainWindow.Refresh();
 		}
 
 		#endregion
 
-		public void SetOpponentHero(Deck hero)
+		public void SetOpponentHero(Deck opponentDeck)
 		{
-			Game.PlayingAgainst = hero.GetClass;
-			Logger.WriteLine("Playing against " + hero, "Hearthstone");
+			Game.PlayingAgainst = opponentDeck.GetClass;
+			Logger.WriteLine("Playing against " + opponentDeck.GetClass, "Hearthstone");
 		}
 
 		public void TurnStart(Turn player, int turnNumber)
@@ -200,7 +218,7 @@ namespace Hearthstone_Deck_Tracker
 				User32.BringHsToForeground();
 
 			if (Config.Instance.KeyPressOnGameStart != "None" &&
-				Helper.MainWindow.EventKeys.Contains(Config.Instance.KeyPressOnGameStart))
+				mainWindow.EventKeys.Contains(Config.Instance.KeyPressOnGameStart))
 			{
 				SendKeys.SendWait("{" + Config.Instance.KeyPressOnGameStart + "}");
 				Logger.WriteLine("Sent keypress: " + Config.Instance.KeyPressOnGameStart);
@@ -227,21 +245,21 @@ namespace Hearthstone_Deck_Tracker
 				}
 				else if (classDecks.Count == 1)
 				{
-					Helper.MainWindow.DeckPickerList.SelectDeck(classDecks[0]);
+					mainWindow.SelectDeck(classDecks[0]);
 					Logger.WriteLine("Found deck to switch to: " + classDecks[0].Name, "HandleGameStart");
 				}
-				else if (Helper.MainWindow.DeckList.LastDeckClass.Any(ldc => ldc.Class == Game.PlayingAs))
+				else if (mainWindow.GetLastDeck(Game.PlayingAs) != null)
 				{
-					var lastDeckName = Helper.MainWindow.DeckList.LastDeckClass.First(ldc => ldc.Class == Game.PlayingAs).Name;
+					var lastDeckName = mainWindow.GetLastDeck(Game.PlayingAs).Name;
 					Logger.WriteLine("Found more than 1 deck to switch to - last played: " + lastDeckName, "HandleGameStart");
 
 					var deck = deckRepository.FirstOrDefault(d => d.Name == lastDeckName);
 
 					if (deck != null)
 					{
-						Helper.MainWindow.DeckPickerList.SelectDeck(deck);
-						Helper.MainWindow.UpdateDeckList(deck);
-						Helper.MainWindow.UseDeck(deck);
+						mainWindow.SelectDeck(deck);
+						mainWindow.UpdateDeckList(deck);
+						mainWindow.UseDeck(deck);
 					}
 				}
 			}
@@ -250,7 +268,7 @@ namespace Hearthstone_Deck_Tracker
 		public void HandleGameEnd()
 		{
 			Logger.WriteLine("Game end");
-			if (Config.Instance.KeyPressOnGameEnd != "None" && Helper.MainWindow.EventKeys.Contains(Config.Instance.KeyPressOnGameEnd))
+			if (Config.Instance.KeyPressOnGameEnd != "None" && mainWindow.EventKeys.Contains(Config.Instance.KeyPressOnGameEnd))
 			{
 				SendKeys.SendWait("{" + Config.Instance.KeyPressOnGameEnd + "}");
 				Logger.WriteLine("Sent keypress: " + Config.Instance.KeyPressOnGameEnd);
@@ -264,11 +282,11 @@ namespace Hearthstone_Deck_Tracker
 			}
 			if (Config.Instance.SavePlayedGames && !Game.IsInMenu)
 			{
-				Helper.MainWindow.SavePlayedCards();
+				mainWindow.SavePlayedCards();
 			}
 			if (!Config.Instance.KeepDecksVisible)
 			{
-				var deck = Helper.MainWindow.DeckPickerList.SelectedDeck;
+				var deck = mainWindow.GetSelectedDeck();
 				if (deck != null)
 					Game.SetPremadeDeck((Deck)deck.Clone());
 
@@ -277,12 +295,12 @@ namespace Hearthstone_Deck_Tracker
 			Game.IsInMenu = true;
 		}
 
-		private static void LogEvent(string type, string id = "", int turn = 0, int from = -1)
+		private void LogEvent(string type, string id = "", int turn = 0, int from = -1)
 		{
 			Logger.WriteLine(string.Format("{0} (id:{1} turn:{2} from:{3})", type, id, turn, from), "LogReader");
 		}
 
-		public static void PlayerSetAside(string id)
+		public void PlayerSetAside(string id)
 		{
 			Game.SetAsideCards.Add(id);
 			Logger.WriteLine("set aside: " + id);
