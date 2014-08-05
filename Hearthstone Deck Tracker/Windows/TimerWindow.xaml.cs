@@ -53,23 +53,10 @@ namespace Hearthstone_Deck_Tracker
 			_appIsClosing = true;
 			Close();
 		}
-
-		private void MetroWindow_LocationChanged(object sender, EventArgs e)
-		{
-			_config.TimerWindowLeft = (int) Left;
-			_config.TimerWindowTop = (int) Top;
-		}
-
+		
 		private void MetroWindow_Activated(object sender, EventArgs e)
 		{
 			Topmost = true;
-		}
-
-		private void MetroWindow_SizeChanged(object sender, SizeChangedEventArgs e)
-		{
-			if (WindowState == WindowState.Minimized) return;
-			_config.TimerWindowHeight = (int) Height;
-			_config.TimerWindowWidth = (int) Width;
 		}
 
 		private void MetroWindow_Deactivated(object sender, EventArgs e)

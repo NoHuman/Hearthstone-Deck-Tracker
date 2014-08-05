@@ -93,7 +93,6 @@ namespace Hearthstone_Deck_Tracker
 			if (_forScreenshot) return;
 			Scale();
 			ListViewPlayer.Items.Refresh();
-			_config.PlayerWindowHeight = (int) Height;
 		}
 
 		protected override void OnClosing(CancelEventArgs e)
@@ -121,14 +120,6 @@ namespace Hearthstone_Deck_Tracker
 		{
 			if (!_config.WindowsTopmost)
 				Topmost = false;
-		}
-
-		private void MetroWindow_LocationChanged(object sender, EventArgs e)
-		{
-			if (_forScreenshot) return;
-			if (WindowState == WindowState.Minimized) return;
-			_config.PlayerWindowLeft = (int) Left;
-			_config.PlayerWindowTop = (int) Top;
 		}
 
 		public void SetTextLocation(bool top)
