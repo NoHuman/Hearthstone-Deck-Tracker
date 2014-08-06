@@ -4,47 +4,16 @@ using System.Linq;
 namespace Hearthstone_Deck_Tracker
 {
 	using Hearthstone_Deck_Tracker.Hearthstone;
-	using System.Collections.ObjectModel;
 	using System.Windows.Forms;
-
-	public interface IOverlayWindow
-	{
-		void Refresh();
-		void ShowSecrets(string playingAgainst);
-		void HideSecrets();
-		void HideTimers();
-	}
-
-	public interface ITurnTimer
-	{
-		void MulliganDone(Turn player);
-		void SetCurrentPlayer(Turn player);
-		void Restart();
-		void Stop();
-	}
-
-	public interface IMainWindow
-	{
-		bool NeedToIncorrectDeckMessage { get; set; }
-		bool IsShowingIncorrectDeckMessage { get; set; }
-		ReadOnlyCollection<string> EventKeys { get; set; }
-		void Refresh();
-		void SelectDeck(Deck deck);
-		DeckInfo GetLastDeck(string playingAs);
-		void UpdateDeckList(Deck deck);
-		void UseDeck(Deck deck);
-		void SavePlayedCards();
-		Deck GetSelectedDeck();
-	}
 
 	public class GameEventHandler2
 	{
 		private IEnumerable<Deck> deckRepository;
-		private ITurnTimer turnTimer;
-		private IOverlayWindow overlayWindow;
-		private IMainWindow mainWindow;
+		private ITurnTimer2 turnTimer;
+		private IOverlayWindow2 overlayWindow;
+		private IMainWindow2 mainWindow;
 
-		public GameEventHandler2(IEnumerable<Deck> deckRepository, ITurnTimer turnTimer, IOverlayWindow overlayWindow, IMainWindow mainWindow)
+		public GameEventHandler2(IEnumerable<Deck> deckRepository, ITurnTimer2 turnTimer, IOverlayWindow2 overlayWindow, IMainWindow2 mainWindow)
 		{
 			this.deckRepository = deckRepository;
 			this.turnTimer = turnTimer;

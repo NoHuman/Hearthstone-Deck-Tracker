@@ -4,13 +4,11 @@
 	using Hearthstone_Deck_Tracker.Hearthstone;
 	using Moq;
 	using NUnit.Framework;
-	using System;
-	using System.Collections.Generic;
 	using System.Collections.ObjectModel;
 	using System.Linq;
 
 	[TestFixture]
-	public class GameEventTests
+	public class GameEventHandlerTests
 	{
 		private string GetRandomCardFromDb()
 		{
@@ -45,16 +43,16 @@
 		}
 
 		[Test]
-		public void TestMethod()
+		public void GameEventHandlerTest()
 		{
 			Game.LoadCardDb("enUS");
 			var decks = new ObservableCollection<Deck>();
 			var deck = CreatePlayerDeck();
 
 			decks.Add(deck);
-			var turnTimer = Mock.Of<ITurnTimer>();
-			var overlayWindow = Mock.Of<IOverlayWindow>();
-			var mainWindow = Mock.Of<IMainWindow>();
+			var turnTimer = Mock.Of<ITurnTimer2>();
+			var overlayWindow = Mock.Of<IOverlayWindow2>();
+			var mainWindow = Mock.Of<IMainWindow2>();
 			var game = new GameEventHandler2(decks, turnTimer, overlayWindow, mainWindow);
 			var unkownOpponentDeck = new Deck
 			{
@@ -99,25 +97,6 @@
 			var cardId = GetRandomCardFromDeck();
 			game.PlayerSetAside(cardId);
 			game.HandlePlayerDraw(cardId);
-		}
-	}
-
-	public static class FuncExtensions
-	{
-		private static readonly Random random = new Random();
-
-		public static void Times(this Action source, int times)
-		{
-			for (int i = 0; i < times; i++)
-			{
-				source();
-			}
-		}
-
-		public static T1 Random<T1>(this IEnumerable<T1> source)
-		{
-			var maxValue = source.Count();
-			return source.Skip(random.Next(0, maxValue)).FirstOrDefault();
 		}
 	}
 }

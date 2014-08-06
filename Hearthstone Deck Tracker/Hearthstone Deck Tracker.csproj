@@ -93,6 +93,9 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="CardCollection2.cs" />
+    <Compile Include="CardMovement2.cs" />
+    <Compile Include="GameEndEvent2.cs" />
     <Compile Include="GameEventHandler2.cs" />
     <Compile Include="Controls\Card.xaml.cs">
       <DependentUpon>Card.xaml</DependentUpon>
@@ -107,6 +110,7 @@
       <DependentUpon>DeckOptions.xaml</DependentUpon>
     </Compile>
     <Compile Include="GameEventHandler.cs" />
+    <Compile Include="GameStartEvent2.cs" />
     <Compile Include="Hearthstone\Card.cs" />
     <Compile Include="Controls\CardToolTip.xaml.cs">
       <DependentUpon>CardToolTip.xaml</DependentUpon>
@@ -137,6 +141,12 @@
     <Compile Include="Hearthstone\Deck.cs" />
     <Compile Include="DeckExporter.cs" />
     <Compile Include="DeckImporter.cs" />
+    <Compile Include="HsLogReader2.cs" />
+    <Compile Include="IMainWindow2.cs" />
+    <Compile Include="IOverlayWindow2.cs" />
+    <Compile Include="ITurnTimer2.cs" />
+    <Compile Include="LogAnalyzer2.cs" />
+    <Compile Include="ILogAnalyzer2.cs" />
     <Compile Include="Logger.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
@@ -145,6 +155,7 @@
     <Compile Include="Hearthstone\Game.cs" />
     <Compile Include="Helper.cs" />
     <Compile Include="HsLogReader.cs" />
+    <Compile Include="OpponentStartEvent2.cs" />
     <Compile Include="TurnTimer.cs" />
     <Compile Include="Windows\DeckSelectionDialog.xaml.cs">
       <DependentUpon>DeckSelectionDialog.xaml</DependentUpon>

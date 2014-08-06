@@ -45,7 +45,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="GameEventTests.cs" />
+    <Compile Include="FuncExtensions.cs" />
+    <Compile Include="GameEventHandlerTests.cs" />
+    <Compile Include="HsLogReaderTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
